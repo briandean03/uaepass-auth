@@ -83,16 +83,23 @@ app.get('/callback', async (req, res) => {
 });
 
 // ─── ROUTE 3: /logout ────────────────────────────────────────────────────────
-// After signing is complete, UAE PASS can redirect here
-// We then redirect the user to UAE PASS logout
 app.get('/logout', (req, res) => {
-  const logoutUrl = `${BASE_URL}/idshub/logout?redirect_uri=${encodeURIComponent(`${RENDER_URL}/done`)}`;
+  const resume = req.query.resume;
+  const doneUrl = `${RENDER_URL}/done?resume=${encodeURIComponent(resume || '')}`;
+  const logoutUrl = `${BASE_URL}/idshub/logout?redirect_uri=${encodeURIComponent(doneUrl)}`;
   res.redirect(logoutUrl);
 });
 
 // ─── ROUTE 4: /done ──────────────────────────────────────────────────────────
-// After logout, UAE PASS redirects here — show confirmation to user
-app.get('/done', (req, res) => {
+app.get('/done', async (req, res) => {
+  const resume = req.query.resume;
+
+  // Trigger n8n resume in background so workflow continues
+  if (resume) {
+    axios.get(resume).catch(err => console.error('n8n resume error:', err.message));
+  }
+
+  // Show confirmation page to user
   res.send(`
     <!DOCTYPE html>
     <html>
