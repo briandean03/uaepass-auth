@@ -84,18 +84,17 @@ app.get('/callback', async (req, res) => {
 
 // ─── ROUTE 3: /logout ────────────────────────────────────────────────────────
 app.get('/logout', (req, res) => {
-  const resume = req.query.resume;
+  const resume = decodeURIComponent(req.query.resume || '');
   const status = req.query.status;
   
-  console.log('==> /logout called, status:', status, 'resume:', resume);
+  console.log('==> /logout called, status:', status);
+  console.log('==> resume URL:', resume);
 
-  // Only logout and resume if signing was successful
   if (status !== 'finished') {
-    console.log('==> Signing was not finished, status:', status);
     return res.send('Signing was cancelled or failed.');
   }
 
-  const doneUrl = `${RENDER_URL}/done?resume=${encodeURIComponent(resume || '')}`;
+  const doneUrl = `${RENDER_URL}/done?resume=${encodeURIComponent(resume)}`;
   const logoutUrl = `${BASE_URL}/idshub/logout?redirect_uri=${encodeURIComponent(doneUrl)}`;
   res.redirect(logoutUrl);
 });
