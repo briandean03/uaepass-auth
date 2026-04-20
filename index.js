@@ -93,12 +93,18 @@ app.get('/logout', (req, res) => {
 // ─── ROUTE 4: /done ──────────────────────────────────────────────────────────
 app.get('/done', async (req, res) => {
   const resume = req.query.resume;
+  console.log('==> /done called, resume URL:', resume);
 
-  // Trigger n8n resume in background so workflow continues
   if (resume) {
-    axios.get(resume).catch(err => console.error('n8n resume error:', err.message));
+    try {
+      const response = await axios.get(resume);
+      console.log('==> n8n resume response:', response.status);
+    } catch (err) {
+      console.error('==> n8n resume error:', err.message);
+    }
+  } else {
+    console.log('==> No resume URL found');
   }
-
   // Show confirmation page to user
   res.send(`
     <!DOCTYPE html>
