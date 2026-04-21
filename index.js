@@ -49,7 +49,6 @@ function renderPage(content) {
 <body>
   <div class="card">
     ${content}
-    <p class="powered">Powered by <span>UAE PASS</span></p>
   </div>
 </body>
 </html>`;
