@@ -164,8 +164,7 @@ app.get('/logout', (req, res) => {
   if (status !== 'finished') {
     return res.send(renderPage(`
       <div class="error-icon">✕</div>
-      <div class="error-title">Signing cancelled</div>
-      <p class="error-msg">User cancelled the signing process.</p>
+      <div class="error-title">User cancelled the signing process</div>
     `));
   }
 
