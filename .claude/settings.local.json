@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add public/index.html index.js)",
+      "Bash(git add static.html)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
+    ]
+  }
+}
