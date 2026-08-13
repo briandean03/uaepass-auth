@@ -8,6 +8,8 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET || 'sandbox_stage';
 const BASE_URL = process.env.BASE_URL || 'https://stg-id.uaepass.ae';
 const RENDER_URL = process.env.RENDER_URL || 'https://uaepass-auth.onrender.com';
 
+app.use(express.static('public'));
+
 // Signing process store
 const signingStore = {};
 
