@@ -8,8 +8,6 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET || 'sandbox_stage';
 const BASE_URL = process.env.BASE_URL || 'https://stg-id.uaepass.ae';
 const RENDER_URL = process.env.RENDER_URL || 'https://uaepass-auth.onrender.com';
 
-app.use(express.static('public'));
-
 // Signing process store
 const signingStore = {};
 
@@ -104,13 +102,15 @@ app.get('/sign', (req, res) => {
 app.get('/callback', async (req, res) => {
   const { code, state, error } = req.query;
 
-  if (error) {
-    return res.send(renderPage(`
-      <div class="error-icon">✕</div>
-      <div class="error-title">Login cancelled</div>
-      <p class="error-msg">User cancelled the login.</p>
-    `));
-  }
+if (error) {
+  return res.send(renderPage(`
+    <div class="error-icon">✕</div>
+    <div class="error-title">Login Cancelled</div>
+    <p class="error-msg">User cancelled the login.</p>
+    <hr class="divider">
+    <p class="error-msg" style="font-size:12px;">You may close this window or contact 2p2c to restart the process.</p>
+  `));
+}
 
   if (!code || !state) {
     return res.send(renderPage(`
@@ -182,13 +182,13 @@ app.get('/logout', (req, res) => {
   const resume = decodeURIComponent(req.query.resume || '');
   const status = req.query.status;
 
-  console.log('==> /logout called, status:', status);
-  console.log('==> resume URL:', resume);
-
   if (status !== 'finished') {
     return res.send(renderPage(`
       <div class="error-icon">✕</div>
-      <div class="error-title">User cancelled the signing process</div>
+      <div class="error-title">Signing Cancelled</div>
+      <p class="error-msg">User cancelled the signing process.</p>
+      <hr class="divider">
+      <p class="error-msg" style="font-size:12px;">You may close this window or contact 2p2c to restart the process.</p>
     `));
   }
 
