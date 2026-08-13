@@ -56,17 +56,21 @@ function renderPage(content) {
 
 // ─── ROUTE 1: /sign ─────────────────────────────────────────────────────────
 app.get('/sign', (req, res) => {
-  const { process_id, signing_url } = req.query;
+  const { process_id, base_url, process_json, pdf_base64 } = req.query;
 
-  if (!process_id || !signing_url) {
+  if (!process_id) {
     return res.status(400).send(renderPage(`
       <div class="error-icon">⚠️</div>
       <div class="error-title">Invalid signing link</div>
-      <p class="error-msg">This signing link is invalid or has expired. Please contact 2p2c Project Management Consultants.</p>
+      <p class="error-msg">This signing link is invalid or has expired.</p>
     `));
   }
 
-  signingStore[process_id] = decodeURIComponent(signing_url);
+  signingStore[process_id] = {
+    base_url: decodeURIComponent(base_url || ''),
+    process_json: decodeURIComponent(process_json || ''),
+    pdf_base64: decodeURIComponent(pdf_base64 || '')
+  };
 
   const authUrl = new URL(`${BASE_URL}/idshub/authorize`);
   authUrl.searchParams.set('response_type', 'code');
@@ -114,18 +118,19 @@ app.get('/callback', async (req, res) => {
     `));
   }
 
-  const signing_url = signingStore[state];
-  if (!signing_url) {
+  const sessionData = signingStore[state];
+  if (!sessionData) {
     return res.send(renderPage(`
       <div class="error-icon">⚠️</div>
       <div class="error-title">Session expired</div>
-      <p class="error-msg">This signing session has expired. Please request a new signing link from 2p2c Project Management Consultants.</p>
+      <p class="error-msg">This signing session has expired. Please request a new signing link.</p>
     `));
   }
 
   try {
+    // Exchange code for token
     const credentials = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
-    await axios.post(
+    const tokenResponse = await axios.post(
       `${BASE_URL}/idshub/token`,
       new URLSearchParams({
         grant_type: 'authorization_code',
@@ -140,11 +145,28 @@ app.get('/callback', async (req, res) => {
       }
     );
 
+    const userToken = tokenResponse.data.access_token;
+
+    // Call n8n webhook to create the signer process
+    const n8nResponse = await axios.post(
+      'https://pmc2p2c.app.n8n.cloud/webhook/create-process',
+      {
+        access_token: userToken,
+        base_url: sessionData.base_url,
+        process_json: sessionData.process_json,
+        pdf_base64: sessionData.pdf_base64
+      }
+    );
+
+    const { signing_url } = n8nResponse.data;
+
     delete signingStore[state];
+
+    // Redirect signer to signing URL
     res.redirect(signing_url);
 
   } catch (err) {
-    console.error('Token exchange error:', err.response?.data || err.message);
+    console.error('Callback error:', err.response?.data || err.message);
     res.send(renderPage(`
       <div class="error-icon">⚠️</div>
       <div class="error-title">Something went wrong</div>
