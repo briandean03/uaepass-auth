@@ -126,9 +126,8 @@ app.get('/sign', (req, res) => {
     </div>
     ${pdfBlock}
     <p class="powered" style="margin-bottom:16px;">Please review the document above carefully before signing.</p>
-    <a href="${authUrl.toString()}" class="sign-btn">
-      ${uaePassLogo}
-      Sign with UAE PASS
+    <a href="${authUrl.toString()}" style="display:block;text-align:center;">
+  <img src="/uaepass-button.png" alt="Sign with UAE PASS" style="height:52px;cursor:pointer;" />
     </a>
     <p class="powered" style="margin-top:16px;">By clicking above, you will be redirected to UAE PASS to authenticate and sign.</p>
   `, false));
