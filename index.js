@@ -75,7 +75,8 @@ app.post('/store', (req, res) => {
   signingStore[process_id] = {
     signing_url,
     pdf_base64: pdf_base64 || '',
-    document_name: document_name || 'Document'
+    document_name: document_name || 'Document',
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
   };
 
   console.log(`==> /store: stored process_id=${process_id}`);
@@ -94,6 +95,15 @@ app.get('/sign', (req, res) => {
       <div class="error-icon">⚠️</div>
       <div class="error-title">Invalid signing link</div>
       <p class="error-msg">This signing link is invalid or has expired. Please contact 2p2c to request a new link.</p>
+    `));
+  }
+
+  if (Date.now() > session.expiresAt) {
+    delete signingStore[process_id];
+    return res.status(400).send(renderPage(`
+      <div class="error-icon">⚠️</div>
+      <div class="error-title">Link Expired</div>
+      <p class="error-msg">This signing link has expired. Please contact 2p2c to request a new link.</p>
     `));
   }
 
