@@ -111,7 +111,7 @@ app.get('/sign', (req, res) => {
   authUrl.searchParams.set('response_type', 'code');
   authUrl.searchParams.set('client_id', CLIENT_ID);
   authUrl.searchParams.set('scope', 'urn:uae:digitalid:profile:general');
-  authUrl.searchParams.set('redirect_uri', `${RENDER_URL}/callback`);
+  authUrl.searchParams.set('redirect_uri', `${RENDER_URL}/`);
   authUrl.searchParams.set('state', process_id);
   authUrl.searchParams.set('acr_values', 'urn:safelayer:tws:policies:authentication:level:low');
   authUrl.searchParams.set('ui_locales', 'en');
@@ -146,9 +146,9 @@ app.get('/sign', (req, res) => {
 // ─── ROUTE 3: /callback ──────────────────────────────────────────────────────
 // UAE PASS redirects here after authentication
 // Exchanges code for token, then redirects to stored signing_url
-app.get('/callback', async (req, res) => {
+app.get('/', async (req, res) => {
   const { code, state, error } = req.query;
-
+  if (!code && !error) return res.sendFile('index.html', { root: 'public' });
   if (error) {
     return res.send(renderPage(`
       <div class="error-icon">✕</div>
@@ -183,7 +183,7 @@ app.get('/callback', async (req, res) => {
       `${BASE_URL}/idshub/token`,
       new URLSearchParams({
         grant_type: 'authorization_code',
-        redirect_uri: `${RENDER_URL}/callback`,
+        redirect_uri: `${RENDER_URL}/`,
         code: code,
       }),
       {
