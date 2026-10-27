@@ -9,7 +9,6 @@ const BASE_URL = process.env.BASE_URL || 'https://stg-id.uaepass.ae';
 const RENDER_URL = process.env.RENDER_URL || 'https://uaepass-auth.onrender.com';
 
 // ─── MIDDLEWARE ───────────────────────────────────────────────────────────────
-app.use(express.static('public'));
 app.use(express.json({ limit: '50mb' }));
 
 // ─── SIGNING STORE ────────────────────────────────────────────────────────────
@@ -253,6 +252,9 @@ app.get('/done', async (req, res) => {
     <p class="success-msg">Your document has been signed and saved.<br>You may now close this window.</p>
   `));
 });
+
+// ─── STATIC ──────────────────────────────────────────────────────────────────
+app.use(express.static('public'));
 
 // ─── START ───────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
