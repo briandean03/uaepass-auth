@@ -235,17 +235,16 @@ app.get('/logout', (req, res) => {
 app.get('/done', async (req, res) => {
   const resume = req.query.resume;
 
-  console.log('==> /done called, resume URL:', resume);
-
   if (resume) {
     try {
-      const response = await axios.get(decodeURIComponent(resume));
+      const response = await axios.get(decodeURIComponent(resume), {
+        params: { status: 'finished' }
+      });
       console.log('==> n8n resume response:', response.status);
     } catch (err) {
       console.error('==> n8n resume error:', err.message);
     }
   }
-
   res.send(renderPage(`
     <div class="success-icon">✓</div>
     <div class="success-title">Document Signed Successfully</div>
